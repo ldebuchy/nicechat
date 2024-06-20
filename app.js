@@ -15,10 +15,11 @@ app.use(express.json()); // Middleware pour parser les requêtes en JSON
 app.use(express.urlencoded({ extended: false })); // Middleware pour parser les requêtes POST
 app.use(express.static(path.join(__dirname, 'public')));
 
-// route de test
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
+// Définition des middlewares de l'application
+const indexRouter = require('./routes/index_router');
+
+// Définition des routes des middlewares
+app.use('/', indexRouter);
 
 // Lancement de l'application
 app.listen(port, () => {
