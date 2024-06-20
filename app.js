@@ -17,9 +17,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Définition des middlewares de l'application
 const indexRouter = require('./routes/index_router');
+const apiRouter = require('./routes/api_router');
+const authRouter = require('./routes/auth_router');
 
 // Définition des routes des middlewares
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
+app.use('/api', apiRouter);
+
+// Page pour les erreurs 404, mais pas pour les requetes api
+app.use((req, res, next) => {
+    if (req.originalUrl.includes('/api')) {
+        return next();
+    }
+    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
+});
 
 // Lancement de l'application
 app.listen(port, () => {

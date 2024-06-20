@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Nicechat - S'inscrire</title>
+    <link rel="stylesheet" href="/css/general.css">
+</head>
+<body>
+<header><script src="/js/header.js"></script></header>
+
+<div id="main">
+    <div class="center-div">
+        <div class="box">
+            <h2>S'inscrire</h2>
+            <p>Créez-vous un compte pour commencer à discuter.</p>
+            <form action="/auth/register" method="post">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" required>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+                <label for="password">Mot de passe (8 character minimum)</label>
+                <input type="password" id="password" name="password" required>
+                <input type="submit" value="S'inscrire">
+            </form>
+            <p>Déjà un compte ? <a href="/login">Se connecter</a></p>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    document.querySelector('form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const response = await fetch(event.target.action, {
+            method: event.target.method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(Object.fromEntries(formData))
+        });
+        if (response.ok) {
+            window.location.href = '/login?registered=true';
+        } else {
+            const error = await response.json();
+            alert(error.message);
+        }
+    });
+</script>
+</body>
+</html>

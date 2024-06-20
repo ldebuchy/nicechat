@@ -1,0 +1,25 @@
+#main {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.form:not(:last-child)
+{
+    border-bottom: 1px solid #dddddd;
+}
+
+#formlist {
+    overflow-y: auto;
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    padding-inline: 10px;
+    margin-block: 10px;
+    background: #ffffff;
+}
