@@ -1,3 +1,8 @@
+if (window.location.search === '?registered=true') {
+    // Attend 1 seconde avant d'afficher l'alerte
+    setTimeout(() => alert('Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.'), 1000);
+}
+
 // Ajoute un écouteur d'événement sur le formulaire
 document.querySelector('form').addEventListener('submit', async (event) => {
 
@@ -31,6 +36,7 @@ document.querySelector('form').addEventListener('submit', async (event) => {
     } else {
         // Affiche un message d'erreur
         const error = await response.json();
+        alert(error.message);
     }
 
     // On réactive le bouton de soumission du formulaire

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Nicechat - S'inscrire</title>
+    <link rel="icon" type="image/png" href="/image/favicon.png">
     <link rel="stylesheet" href="/css/general.css">
 </head>
 <body>
@@ -18,7 +19,7 @@
                 <input type="text" id="username" name="username" required>
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
-                <label for="password">Mot de passe</label>
+                <label for="password">Mot de passe (8 character minimum)</label>
                 <input type="password" id="password" name="password" required>
                 <input type="submit" value="S'inscrire">
             </form>
@@ -27,24 +28,6 @@
     </div>
 </div>
 
-<script type="text/javascript">
-    document.querySelector('form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const response = await fetch(event.target.action, {
-            method: event.target.method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(Object.fromEntries(formData))
-        });
-        if (response.ok) {
-            window.location.href = '/login?registered=true';
-        } else {
-            const error = await response.json();
-            alert(error.message);
-        }
-    });
-</script>
+<script src="/js/register.js"></script>
 </body>
 </html>

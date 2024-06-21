@@ -47,12 +47,7 @@ const update = (req, res) => {
         if (!user) {
             return res.status(404).send();
         }
-        // récupération de l'utilisateur mis à jour
-        User.findById(_id).then((user) => {
-            res.send(user);
-        }).catch((error) => {
-            res.status(500).send(error);
-        });
+        res.send(user);
     }).catch((error) => {
         res.status(500).send(error);
     });
