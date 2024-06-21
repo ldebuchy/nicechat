@@ -1,7 +1,6 @@
 const User = require('../../models/user_model');
 require('dotenv').config();
 
-const COMPANY_DOMAIN = process.env.COMPANY_DOMAIN; // récupération de la liste des domaines autorisés
 const ADMIN_ID = process.env.ADMIN_ID; // récupération de l'ID de l'administrateur
 
 const getUser = (req, res) => {
@@ -13,17 +12,7 @@ const getUser = (req, res) => {
         if (!user) {
             return res.status(404).send();
         }
-        // on supprime les informations sensibles et inutiles
-        if (req.user._id !== _id) { // si l'utilisateur n'est pas le propriétaire du compte on envoie pas ces informations
-            user.email = undefined;
-            user.workspaces = undefined;
-        }
-        user.password = undefined;
-        user.created_at = undefined;
-        user.__v = undefined;
-        
-        // On envoie ces informations uniquement si l'utilisateur est le propriétaire du compte
-        
+
         res.send(user);
     }).catch((error) => {
         res.status(500).send(error);
@@ -50,13 +39,9 @@ const getAllUsers = (req, res) => {
 const update = (req, res) => {
     const _id = req.params.id || req.user._id;
     
-    if (req.body.password && req.body.password.length < 8) {
-        return res.status(400).send({message: 'Password must be at least 8 characters long'});
+    if (req.body.password) {
+        delete req.body.password;
     }
-    
-    // si le domaine de l'email n'est pas contenue dans la liste des domaines autorisés, l'utilisateur est définie comme externe
-    const domain = req.body.email.split('@')[1];
-    req.body.external = !COMPANY_DOMAIN.split(',').includes(domain);
     
     User.findByIdAndUpdate(_id, req.body, {new: true}).then((user) => {
         if (!user) {
@@ -89,4 +74,4 @@ const deleteUser = (req, res) => {
     }
 }
 
-module.exports = {getUser, getAllUsers, deleteUser};
+module.exports = {getUser, getAllUsers, update, deleteUser};

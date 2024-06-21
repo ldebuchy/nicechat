@@ -1,6 +1,6 @@
 document.querySelector('header').innerHTML = `
 <h1>
-    <a href="/">Nicechat</a>
+    <a href="/">N!CECHAT</a>
 </h1>
 <nav>
     <a href="/login">Se connecter</a>
