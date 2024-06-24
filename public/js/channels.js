@@ -118,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             await loadUserInfo();
             
-            
             // On récupère les informations du workspace
             const response = await fetch(`/api/workspace/${workspaceID}`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -202,6 +201,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 0);
                 });
 
+                // Les membres
+                
+                document.getElementById('members').innerHTML = ``;
+                workspace.members.forEach(member => {
+                    // On, récupère le nom du membre via l'api
+                    fetch(`/api/user/${member}` , {headers: { Authorization: `Bearer ${token}` }})
+                        .then(response => response.json())
+                        .then(user => {
+                            let html = `
+                                <div class="member">
+                                    <p>${user.username}</p>
+                                </div>
+                            `;
+                            
+                            if (workspace.owner_id === user._id) {
+                                html = `
+                                    <div class="member owner">
+                                        <p>${user.username}</p>
+                                        <svg class="ownericon" aria-hidden="false" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M5 18a1 1 0 0 0-1 1 3 3 0 0 0 3 3h10a3 3 0 0 0 3-3 1 1 0 0 0-1-1H5ZM3.04 7.76a1 1 0 0 0-1.52 1.15l2.25 6.42a1 1 0 0 0 .94.67h14.55a1 1 0 0 0 .95-.71l1.94-6.45a1 1 0 0 0-1.55-1.1l-4.11 3-3.55-5.33.82-.82a.83.83 0 0 0 0-1.18l-1.17-1.17a.83.83 0 0 0-1.18 0l-1.17 1.17a.83.83 0 0 0 0 1.18l.82.82-3.61 5.42-4.41-3.07Z" class=""></path></svg>
+                                    </div>
+                                `;
+                            }
+                            
+                            document.getElementById('members').innerHTML += html;
+                        });
+                });
+                
+                
                 // Les écouteurs d'événements
                 if (workspace.owner_id === user._id) {
                     document.getElementById('delete_workspace').addEventListener('click', async () => {
@@ -269,7 +296,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         loadPage(url);
                     });
                 }
-                
+
+                document.getElementById('view_members').addEventListener('click', () => {
+                    if (document.getElementById('chat_members').style.display === 'none') {
+                        document.getElementById('chat_members').style.display = 'block';
+                    } else {
+                        document.getElementById('chat_members').style.display = 'none';
+                    }
+                });
                 
             }
         }

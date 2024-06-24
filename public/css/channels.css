@@ -455,7 +455,7 @@ div {
     overflow: hidden;
 }
 
-.chat_members {
+#chat_members {
     display: block;
     justify-content: left;
     height: 100%;
@@ -463,4 +463,64 @@ div {
     min-width: 240px;
     max-width: 240px;
     background: #2b2d31;
+}
+
+#members {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.member {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    font-weight: normal;
+    font-size: 16px;
+    cursor: pointer;
+    color: #7f838d;
+    border-radius: 4px;
+    margin-block: 1px;
+    height: 20px;
+    min-height: 20px;
+    max-height: 20px;
+    width: 208px;
+    min-width: 208px;
+    max-width: 208px;
+    padding-inline: 8px;
+    padding-block: 12px;
+}
+
+.member:first-child {
+    margin-top: 12px;
+}
+
+.member:last-child {
+    margin-bottom: 12px;
+}
+
+.member p{
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-left: 4px;
+}
+
+.member:hover {
+    color: lightgray;
+    background: #37373e;
+}
+
+.member:active {
+    background: #3c3d43;
+}
+
+.member.owner {
+    color: #eeb032;
+}
+
+.ownericon {
+    margin-left: 4px;
 }

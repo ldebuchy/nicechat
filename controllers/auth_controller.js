@@ -48,7 +48,7 @@ const register = async (req, res) => {
         }
         
         // refuser si le nom d'utilisateur contient des caractères autres que des lettres minuscules, des chiffres, des points et des backspace (espace non accepté pour éviter les problèmes de compatibilité avec les URL)
-        if (!/^[a-z0-9.]+$/.test(username)) {
+        if (!/^[a-z0-9._]+$/.test(username)) {
             return res.status(400).json({ message: 'Username can only contain lowercase letters, numbers, dots and backspaces' });
         }
         
