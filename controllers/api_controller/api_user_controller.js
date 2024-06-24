@@ -13,6 +13,8 @@ const getUser = (req, res) => {
             return res.status(404).send();
         }
 
+        user.password = undefined; // on enlève le mot de passe
+        
         res.send(user);
     }).catch((error) => {
         res.status(500).send(error);

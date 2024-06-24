@@ -1,0 +1,466 @@
+:root {
+    --dark-background: #1E1F22FF;
+    --blue: #004aaa;
+    --lightblue: #007bff;
+    --darkblue: #003f8a;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+}
+
+body  {
+    font-family: 'trebuchet ms', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.25px;
+    background: var(--dark-background);
+    padding: 0;
+    color: #ffffff;
+    margin: 0;
+    white-space: nowrap; /* Empêche le texte de s'étendre sur plusieurs lignes */
+    text-overflow: ellipsis; /* Affiche des points de suspension (...) pour indiquer que le texte est tronqué */
+}
+
+body a {
+    text-decoration: none;
+}
+
+body p {
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+    user-select: none;
+}
+
+div {
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.scroller {
+    overflow: hidden;
+    padding-inline: 6px;
+    margin-inline: 0;
+    height: 100%;
+}
+
+.scroller:hover {
+    overflow-y: scroll;
+    padding-right: 0;
+    margin-right: 2px;
+}
+
+.scroller_content {
+    height: 100%;
+    width: 100%;
+}
+
+#workspace_icons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.workspace_sidebar {
+    max-width: 72px;
+    width: 72px;
+    min-width: 72px;
+    background: var(--dark-background);
+    height: 100%;
+}
+
+.workspace_sidebar .scroller::-webkit-scrollbar-thumb {
+    display: none;
+}
+
+.workspace_sidebar .wsicon {
+    border-radius: 50%;
+    height: 48px;
+    width: 48px;
+    background: #313338;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    transition: border-radius 0.2s;
+    overflow: hidden;
+}
+
+.workspace_sidebar .workspace:hover .wsicon {
+    border-radius: 35%;
+}
+
+.selected .wsicon{
+    transition: none;
+    border-radius: 35%;
+}
+
+.workspace_sidebar .wsicon p {
+    padding: 0;
+    margin: 0;
+}
+
+.workspace_sidebar .workspace:active .wsicon{
+    margin-top: 1px;
+    margin-bottom: -1px;
+}
+
+.workspace_sidebar .workspace {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    width: 72px;
+    margin-right: 4px;
+    cursor: pointer;
+}
+
+.workspace_sidebar .workspace:first-child {
+    margin-top: 12px;
+}
+
+.workspace_sidebar .workspace .workspace_select {
+    width: 4px;
+    height: 8px;
+    background: transparent;
+    margin-left: -8px;
+    margin-right: 8px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    transition: all 0.2s;
+}
+
+.workspace_sidebar .workspace:hover .workspace_select {
+    width: 4px;
+    height: 20px;
+    background: white;
+}
+
+.workspace_sidebar .workspace.selected .workspace_select {
+    transition: height 0.2s;
+    width: 4px;
+    height: 40px;
+    background: white;
+}
+
+.workspace_sidebar .separator {
+    height: 2px;
+    width: 32px;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.workspace_sidebar #add_workspace {
+    font-weight: normal;
+    color: #23a458;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.workspace_sidebar #add_workspace:hover {
+    border-radius: 35%;
+    background: #23a458;
+    color: #ffffff;
+}
+
+.workspace_sidebar #add_workspace:active{
+    margin-top: 1px;
+    margin-bottom: 11px;
+}
+
+#workspace_main {
+    display: flex;
+    background: #313338;
+    height: 100%;
+    width: 100%;
+}
+
+.workspace_main p {
+    padding: 0;
+    margin: 0;
+}
+
+.channels_sidebar {
+    height: 100%;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
+    display: flex;
+    flex-direction: column;
+    background: #2b2d31;
+    overflow: hidden;
+}
+
+.channels_sidebar .scroller {
+    color: #7f838d;
+    font-weight: bold;
+}
+
+#channels_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    padding-inline: 16px;
+    padding-block: 12px;
+    height: 24px;
+    min-height: 24px;
+    max-height: 24px;
+    box-shadow: 0 0 2px 0 black;
+    z-index: 1;
+}
+
+#channels_header h2 {
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.channels_header_options {
+    display: flex;
+    justify-content: center;
+}
+
+#channels_header .icon:last-child {
+    margin-right: 0;
+}
+
+.icon {
+    color: #b4b9bf;
+    padding-inline: 4px;
+    padding-block: 4px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.icon:hover {
+    color: #dbe0e3;
+}
+
+.icon:active {
+    color: white;
+}
+
+#delete_workspace:hover {
+    color: #f23f42;
+}
+
+#leave:hover {
+    color: #f23f42;
+}
+
+#channels {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.channel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: normal;
+    font-size: 16px;
+    cursor: pointer;
+    color: #7f838d;
+    border-radius: 4px;
+    margin-block: 1px;
+    height: 20px;
+    min-height: 20px;
+    max-height: 20px;
+    width: 208px;
+    min-width: 208px;
+    max-width: 208px;
+    
+    padding-inline: 8px;
+    padding-block: 6px;
+}
+
+.channel:first-child {
+    margin-top: 12px;
+}
+
+.channel:last-child {
+    margin-bottom: 12px;
+}
+
+.channel_name {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.channel_name p {
+    padding: 0;
+    margin: 0;
+    height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.channel_name .hashtag {
+    flex-shrink: 0;
+    color: #7f838d;
+    margin-right: 6px;
+}
+
+.channel:hover {
+    color: lightgray;
+    background: #37373e;
+}
+
+.channel_options {
+    display: flex;
+    justify-content: right;
+    margin-inline: 0;
+}
+
+.channel_icon {
+    display: none;
+    color: #7f838d;
+}
+
+.channel_options svg{
+    margin-inline: 0;
+}
+
+
+.channel:hover .channel_icon {
+    display: block;
+}
+
+.channel:active {
+    background: #3c3d43;
+}
+
+.channel.selected {
+    color: white;
+    background: #3f4148;
+}
+
+.account {
+    background: #232428;
+    width: 210px;
+    min-width: 210px;
+    max-width: 210px;
+    height: 53px;
+    min-height: 53px;
+    max-height: 53px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 15px;
+    font-weight: normal;
+    z-index: 1;
+}
+
+.account a {
+    color: #f23f42;
+    font-size: 12px;
+    font-weight: normal;
+    font-variant: small-caps;
+}
+
+.account #user_info {
+    display: flex;
+    align-items: center;
+    user-select: text;
+}
+
+.separator {
+    height: 1px;
+    background: #313338;
+    margin-block: 10px;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.chat_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    padding-inline: 16px;
+    padding-block: 12px;
+    font-weight: normal;
+    height: 24px;
+    min-height: 24px;
+    max-height: 24px;
+    box-shadow: 0 0 2px 0 black;
+    z-index: 1;
+}
+
+.chat_header h2 {
+    padding: 0;
+    margin-left: 8px;
+    font-size: 14px;
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chat_header .hashtag {
+    color: #7f838d;
+}
+
+.chat_header_info {
+    display: flex;
+    align-items: center;
+}
+
+.chat_content {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    overflow: hidden;
+}
+
+.chat_messages {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.chat_members {
+    display: block;
+    justify-content: left;
+    height: 100%;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
+    background: #2b2d31;
+}

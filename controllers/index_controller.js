@@ -8,6 +8,10 @@ const channel = (req, res) => {
     res.sendFile('channels.html', rootDir)
 };
 
+const invite = (req, res) => {
+    res.sendFile('invite.html', rootDir)
+};
+
 const login = (req, res) => {
     res.sendFile('auth/login.html', rootDir)
 };
@@ -28,4 +32,4 @@ const admin_user = (req, res) => {
     res.sendFile('admin/admin_user.html', rootDir)
 };
 
-module.exports = {home, channel, login, register, logout, admin_home, admin_user};
+module.exports = {home, channel, invite ,login, register, logout, admin_home, admin_user};

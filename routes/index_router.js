@@ -7,6 +7,8 @@ router.get('/channels', display.channel);
 router.get('/channels/:workspace', display.channel);
 router.get('/channels/:workspace/:channel', display.channel);
 
+router.get('/invite/:id', display.invite);
+
 router.get('/login', display.login);
 router.get('/register', display.register);
 router.get('/logout', display.logout)

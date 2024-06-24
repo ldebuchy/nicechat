@@ -18,10 +18,13 @@ const createWorkspace = async (req, res) => {
         workspace.workspace_code = workspace_code;
         
         // Assigner la couleur de l'icône par défaut
-        workspace.icon_color = req.body.icon_color || `#${Math.floor(Math.random()*16777215).toString(16)}`;
+        workspace.icon_color = req.body.icon_color || `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
         
         // Générer un canal par défaut
+        workspace.channels.push({name: 'information'});
         workspace.channels.push({name: 'general'});
+        workspace.channels.push({name: 'hors-sujet'});
+        
         
         // Ajouter le workspace à l'utilisateur
         const user = await User.findById(req.user._id);
@@ -47,6 +50,23 @@ const getWorkspace = async (req, res) => {
     }
 }
 
+const getUserWorkspaces = async (req, res) => {
+    try {
+        const workspaces = await Workspace.find({members: req.user._id});
+        // On envoie seulement l'id, le nom et la couleur de l'icône
+        workspaces.forEach(workspace => {
+            workspace.workspace_code = undefined;
+            workspace.created_at = undefined;
+            workspace.owner_id = undefined;
+            workspace.members = undefined;
+            workspace.__v = undefined;
+        });
+        res.send(workspaces);
+    } catch (error) {
+        res.status
+    }
+}
+
 const updateWorkspace = async (req, res) => {
     const _id = req.params.id;
 
@@ -58,6 +78,50 @@ const updateWorkspace = async (req, res) => {
     }).catch((error) => {
         res.status(500).send(error);
     });
+}
+
+const addChannel = async (req, res) => {
+    const workspace = await Workspace.findById(req.params.id);
+    
+    if (!workspace) {
+        return res.status(404).send();
+    }
+    
+    // On vérifie si l'utilisateur est membre du workspace
+    if (!workspace.members.includes(req.user._id)) {
+        return res.status(403).send({error: "You are not a member of this workspace"});
+    }
+    
+    req.body.name = req.body.name.replace(/ /g, '-').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
+    
+    workspace.channels.push(req.body);
+    await workspace.save();
+    
+    res.send(workspace);
+}
+
+const leaveWorkspace = async (req, res) => {
+    const workspace = await Workspace.findById(req.params.id);
+    
+    if (!workspace) {
+        return res.status(404).send();
+    }
+    
+    // On vérifie si l'utilisateur est le propriétaire
+    if (workspace.owner_id.toString() === req.user._id.toString()) {
+        return res.status(403).send({error: "You are the owner of this workspace. You can't leave it."});
+    }
+    
+    // On supprime le workspace de la liste des workspaces de l'utilisateur
+    const user = await User.findById(req.user._id);
+    user.workspaces.pull(workspace._id);
+    await user.save();
+    
+    // On supprime l'utilisateur de la liste des membres du workspace
+    workspace.members.pull(req.user._id);
+    await workspace.save();
+    
+    res.send(workspace);
 }
     
 const deleteWorkspace = async (req, res) => {
@@ -85,12 +149,54 @@ const deleteWorkspace = async (req, res) => {
         if (!workspace) {
             return res.status(404).send();
         }
-        console.log(workspace);
         res.send(workspace);
     }).catch((error) => {
         res.status(500).send(error);
     });
     
 }
+
+const matchInviteCode = async (req, res) => {
+    const workspace = await Workspace.findOne({workspace_code: req.params.id});
     
-module.exports = {createWorkspace, getWorkspace, updateWorkspace, deleteWorkspace};
+    if (!workspace) {
+        return res.status(404).send();
+    }
+    
+    // On vérifie si l'utilisateur est déjà membre du workspace
+    if (workspace.members.includes(req.user._id)) {
+        return res.send(workspace);
+    }
+    
+    // On ajoute l'utilisateur à la liste des membres du workspace
+    workspace.members.push(req.user._id);
+    await workspace.save();
+    
+    // On ajoute le workspace à la liste des workspaces de l'utilisateur
+    const user = await User.findById(req.user._id);
+    await User.findById(req.user._id);
+    user.workspaces.push(workspace._id);
+    await user.save();
+    
+    res.send(workspace);
+}
+
+const deleteChannel = async (req, res) => {
+    const workspace = await Workspace.findById(req.params.id);
+    
+    if (!workspace) {
+        return res.status(404).send();
+    }
+    
+    // On vérifie si l'utilisateur est le propriétaire
+    if (workspace.owner_id.toString() !== req.user._id.toString() && req.user._id !== ADMIN_ID) {
+        return res.status(403).send({error: "You are not allowed to delete a channel in this workspace"});
+    }
+    
+    workspace.channels.pull(req.params.channelId);
+    await workspace.save();
+    
+    res.send(workspace);
+}
+
+module.exports = {createWorkspace, getWorkspace, getUserWorkspaces, updateWorkspace, addChannel, leaveWorkspace, deleteWorkspace, matchInviteCode, deleteChannel};

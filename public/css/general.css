@@ -5,7 +5,7 @@
     --secondary-color: #6c757d;
     --secondary-color-light: #6c757d;
     --secondary-color-dark: #6c757d;
-    --background-color: #2b2d30;
+    --background-color: #313338;
     --border-color: #343a40;
     --danger-color: #dc3545;
     --success-color: #28a745;
@@ -17,7 +17,7 @@
 
 body  {
     font-family: sans-serif;
-    background: #1e1f22;
+    background: #2b2d31;
     margin: 0;
     padding: 0;
     color: #ffffff;

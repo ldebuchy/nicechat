@@ -1,6 +1,6 @@
 if (window.location.search === '?registered=true') {
     // Attend 1 seconde avant d'afficher l'alerte
-    setTimeout(() => alert('Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.'), 1000);
+    setTimeout(() => alert('Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.'), 500);
 }
 
 // Ajoute un écouteur d'événement sur le formulaire
