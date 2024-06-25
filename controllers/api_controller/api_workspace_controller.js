@@ -1,5 +1,6 @@
 const User = require('../../models/user_model');
 const Workspace = require('../../models/workspace_model');
+const Message = require('../../models/message_model');
 require('dotenv').config();
 
 const ADMIN_ID = process.env.ADMIN_ID; // récupération de l'ID de l'administrateur
@@ -195,6 +196,8 @@ const deleteChannel = async (req, res) => {
     
     workspace.channels.pull(req.params.channelId);
     await workspace.save();
+    
+    await Message.deleteMany({channel_id: req.params.channelId, workspace_id: req.params.id});
     
     res.send(workspace);
 }

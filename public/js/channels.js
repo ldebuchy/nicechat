@@ -1,10 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
+    var currentWorkspaceID = window.location.pathname.split('/')[2];
+    var currentChannelID = window.location.pathname.split('/')[3];
+    var currentChannelLastMessageDate = null;
+    var currentChannelMessages = [];
+    var currentChannelMembers = [];
+    
     // Function to load content based on the page
-    function loadPage(page) {
-        console.log("loadPage", page);
+    async function loadPage(page) {
+        console.log("load", page);
         
-        let currentWorkspaceID = window.location.pathname.split('/')[2];
-        let currentChannelID = window.location.pathname.split('/')[3];
+        currentWorkspaceID = page.split('/')[2];
+        currentChannelID = page.split('/')[3];
+        currentChannelLastMessageDate = null;
+        currentChannelMessages = [];
+        currentChannelMembers = [];
             
         const token = localStorage.getItem('token');
         let user = {};
@@ -64,9 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                             
                             document.getElementById(workspace._id).addEventListener('click', () => {
-                                history.pushState('channels', '', `/channels/${workspace._id}/${workspace.channels[0]._id}`);
+                                history.pushState({}, '', `/channels/${workspace._id}/${workspace.channels[0]._id}`);
                                 loadPage(`/channels/${workspace._id}/${workspace.channels[0]._id}`);
-
+                                return;
                             });
                         });
                     }, 0);
@@ -98,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             workspaces = await response.json();
                             history.pushState({}, '', `/channels/${workspaces._id}`);
                             loadPage(`/channels/${workspaces._id}`);
+                            return;
                         } else {
                             alert('Une erreur est survenue lors de la création du workspace');
                         }
@@ -109,17 +119,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        const loadWorkspace = async (workspaceID) => {
-            if (!workspaceID) {
-                // on vide workspace_main
-                //document.getElementById('chat_messages').style.display = 'none';
-                return;
-            }
-
+        const loadWorkspace = async (currentWorkspaceID) => {
+            
             await loadUserInfo();
             
+            if (!currentWorkspaceID) {
+                if (workspaces.length > 0) {
+                    currentWorkspaceID = workspaces[0]._id;
+                } else {
+                    return;
+                }
+            }
+
+            
             // On récupère les informations du workspace
-            const response = await fetch(`/api/workspace/${workspaceID}`, {
+            const response = await fetch(`/api/workspace/${currentWorkspaceID}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -128,18 +142,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 history.pushState({}, '', `/channels`);
                 loadPage('/channels');
+                return;
 
             } else {
                 const workspace = await response.json();
 
                 if (!currentChannelID) {
                     currentChannelID = workspace.channels[0]._id;
-                    history.pushState({}, '', `/channels/${workspaceID}/${currentChannelID}`);
-                    loadPage(`/channels/${workspaceID}/${currentChannelID}`);
+                    history.pushState({}, '', `/channels/${currentWorkspaceID}/${currentChannelID}`);
+                    loadPage(`/channels/${currentWorkspaceID}/${currentChannelID}`);
                     return;
                 }
                 
-                document.title = `Nicechat - ${workspace.name}`;
+                document.title = `Nicechat - #${workspace.channels.find(channel => channel._id === currentChannelID).name} (${workspace.name})`;
 
                 // Le header
                 document.getElementById('workspace_name').innerHTML = workspace.name;
@@ -176,22 +191,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         if (channel._id === currentChannelID) {
                             document.getElementById(channel._id).classList.add('selected');
+                            document.getElementById('channel_title').innerHTML = channel.name;
                         }
                         if (workspace.owner_id === user._id) {
                             document.getElementById(channel._id).querySelector('.channel_options').innerHTML += `
-                                <svg class="icon channel_icon delete_channel" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M14.25 1c.41 0 .75.34.75.75V3h5.25c.41 0 .75.34.75.75v.5c0 .41-.34.75-.75.75H3.75A.75.75 0 0 1 3 4.25v-.5c0-.41.34-.75.75-.75H9V1.75c0-.41.34-.75.75-.75h4.5Z" className=""></path><path fill="currentColor" fill-rule="evenodd" d="M5.06 7a1 1 0 0 0-1 1.06l.76 12.13a3 3 0 0 0 3 2.81h8.36a3 3 0 0 0 3-2.81l.75-12.13a1 1 0 0 0-1-1.06H5.07ZM11 12a1 1 0 1 0-2 0v6a1 1 0 1 0 2 0v-6Zm3-1a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Z" clip-rule="evenodd" className=""></path>
-                                </svg>
+                                <svg class="icon channel_icon delete_channel" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M14.25 1c.41 0 .75.34.75.75V3h5.25c.41 0 .75.34.75.75v.5c0 .41-.34.75-.75.75H3.75A.75.75 0 0 1 3 4.25v-.5c0-.41.34-.75.75-.75H9V1.75c0-.41.34-.75.75-.75h4.5Z" className=""></path><path fill="currentColor" fill-rule="evenodd" d="M5.06 7a1 1 0 0 0-1 1.06l.76 12.13a3 3 0 0 0 3 2.81h8.36a3 3 0 0 0 3-2.81l.75-12.13a1 1 0 0 0-1-1.06H5.07ZM11 12a1 1 0 1 0-2 0v6a1 1 0 1 0 2 0v-6Zm3-1a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Z" clip-rule="evenodd" className=""></path></svg>
                             `;
                                 
                             document.getElementById(channel._id).querySelector('.delete_channel').addEventListener('click', async () => {
                                 if (confirm(`Voulez-vous vraiment supprimer le channel "${channel.name}" ?`)) {
-                                    const response = await fetch(`/api/workspace/${workspaceID}/${channel._id}`, {
+                                    const response = await fetch(`/api/workspace/${currentWorkspaceID}/${channel._id}`, {
                                         method: 'DELETE',
                                         headers: {Authorization: `Bearer ${token}`}
                                     });
                                     if (response.ok) {
-                                        loadWorkspace(workspaceID);
-                                        loadPage(`/channels/${workspaceID}/${workspace.channels[0]._id}`);
+                                        window.location.href = `/channels/${currentWorkspaceID}`;
                                     } else {
                                         alert('Une erreur est survenue lors de la suppression du channel');
                                     }
@@ -202,53 +216,96 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 // Les membres
-                
                 document.getElementById('members').innerHTML = ``;
                 workspace.members.forEach(member => {
                     // On, récupère le nom du membre via l'api
                     fetch(`/api/user/${member}` , {headers: { Authorization: `Bearer ${token}` }})
                         .then(response => response.json())
-                        .then(user => {
-                            let html = `
-                                <div class="member">
-                                    <p>${user.username}</p>
-                                </div>
-                            `;
+                        .then(member => {
+                            currentChannelMembers.push(member);
                             
-                            if (workspace.owner_id === user._id) {
-                                html = `
-                                    <div class="member owner">
-                                        <p>${user.username}</p>
-                                        <svg class="ownericon" aria-hidden="false" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M5 18a1 1 0 0 0-1 1 3 3 0 0 0 3 3h10a3 3 0 0 0 3-3 1 1 0 0 0-1-1H5ZM3.04 7.76a1 1 0 0 0-1.52 1.15l2.25 6.42a1 1 0 0 0 .94.67h14.55a1 1 0 0 0 .95-.71l1.94-6.45a1 1 0 0 0-1.55-1.1l-4.11 3-3.55-5.33.82-.82a.83.83 0 0 0 0-1.18l-1.17-1.17a.83.83 0 0 0-1.18 0l-1.17 1.17a.83.83 0 0 0 0 1.18l.82.82-3.61 5.42-4.41-3.07Z" class=""></path></svg>
-                                    </div>
+                            if (document.getElementById(member._id)) {
+                                return;
+                            }
+                            
+                            let memberclass = 'member';
+                            let membericon = '';
+                            
+                            if (workspace.owner_id === member._id) { // Si le membre est le propriétaire du workspace
+                                memberclass += ' owner';
+                                membericon = `
+                                    <svg class="ownericon" aria-hidden="false" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M5 18a1 1 0 0 0-1 1 3 3 0 0 0 3 3h10a3 3 0 0 0 3-3 1 1 0 0 0-1-1H5ZM3.04 7.76a1 1 0 0 0-1.52 1.15l2.25 6.42a1 1 0 0 0 .94.67h14.55a1 1 0 0 0 .95-.71l1.94-6.45a1 1 0 0 0-1.55-1.1l-4.11 3-3.55-5.33.82-.82a.83.83 0 0 0 0-1.18l-1.17-1.17a.83.83 0 0 0-1.18 0l-1.17 1.17a.83.83 0 0 0 0 1.18l.82.82-3.61 5.42-4.41-3.07Z" class=""></path></svg>
                                 `;
                             }
                             
-                            document.getElementById('members').innerHTML += html;
+                            if (member._id === user._id) { // Si le membre est l'utilisateur actuel, on le met en surbrillance
+                                memberclass += ' current_user';
+                            }
+                            
+                            const html = `
+                                    <div class="${memberclass}" id="${member._id}">
+                                        <p>${member.username}</p>
+                                        ${membericon}
+                                    </div>
+                                `;
+                            
+                            // Si le membre est l'utilisateur actuel, on l'ajoute tout en premier (pour plaire à son ego)
+                            if (member._id === user._id) {
+                                document.getElementById('members').innerHTML = html + document.getElementById('members').innerHTML;
+                            } else {
+                                document.getElementById('members').innerHTML += html;
+                            }
+                            
                         });
                 });
-                
+
+                // L'envoie de message
+                document.getElementById('chat_input').innerHTML = `
+                    <textarea id="message_input" autofocus placeholder="Message"></textarea>
+                `;
+                document.getElementById('message_input').focus();
                 
                 // Les écouteurs d'événements
-                if (workspace.owner_id === user._id) {
-                    document.getElementById('delete_workspace').addEventListener('click', async () => {
-                        if (confirm(`Voulez-vous vraiment supprimer le workspace ? Une fois supprimé, il ne pourra pas être récupéré.`)) {
-                            const response = await fetch(`/api/workspace/${workspaceID}`, {
-                                method: 'DELETE',
-                                headers: {Authorization: `Bearer ${token}`}
-                            });
-                            if (response.ok) {
-                                window.location.href = '/channels';
-                            } else {
-                                alert('Une erreur est survenue lors de la suppression du workspace');
-                            }
-                        }
-                    });
+                
+                // Quand on appuie sur entrée dans la textarea pour envoyer un message
+                document.getElementById('message_input').addEventListener('keydown', async (event) => {
 
+                    if (event.key === 'Enter' && event.shiftKey) {
+                        event.preventDefault();
+                        // on implémentera la possibilité de faire un retour à la ligne avec shift + entrée
+                    } else if (event.key === 'Enter' && event.target.value.trim() !== '') { // Si la touche appuyée est "Entrée"
+                        event.preventDefault();
+                        const response = await fetch(`/api/message/${currentWorkspaceID}/${currentChannelID}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                message: event.target.value,
+                                parent_id: null,
+                                workspace_id: currentWorkspaceID,
+                                channel_id: currentChannelID
+                            })
+                        });
+                        if (response.ok) {
+                            event.target.value = '';
+                            event.target.rows = 1;
+                            console.log('Message envoyé:', await response.json());
+                            await refreshMessages(currentWorkspaceID, currentChannelID);
+                        } else {
+                            alert('Une erreur est survenue lors de l\'envoie du message');
+                        }
+                    }
+                    document.getElementById('message_input').hasEventListener = true;
+                });
+                
+                // Ajouter un channel
+                if (workspace.owner_id === user._id) {
                     document.getElementById('add_channel').addEventListener('click', async () => {
                         const channel_name = prompt('Entrez le nom du channel. Seuls les caractères alphanumériques minuscule et les tirets sont autorisés.');
                         if (channel_name) {
-                            const response = await fetch(`/api/workspace/${workspaceID}/channel`, {
+                            const response = await fetch(`/api/workspace/${currentWorkspaceID}/channel`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -257,25 +314,41 @@ document.addEventListener('DOMContentLoaded', function() {
                                 body: JSON.stringify({ name: channel_name })
                             });
                             if (response.ok) {
-                                const channel = await response.json();
-                                history.pushState({}, '', `/channels/${workspaceID}/${channel._id}`);
-                                loadPage(`/channels/${workspaceID}/${channel._id}`);
+                                let newchannel = await response.json();
+                                newchannel = newchannel.channels[newchannel.channels.length - 1];
+                                history.pushState({}, '', `/channels/${currentWorkspaceID}/${newchannel._id}`);
+                                loadPage(`/channels/${currentWorkspaceID}/${newchannel._id}`);
+                                return;
                             } else {
                                 alert('Une erreur est survenue lors de la création du channel');
                             }
                         }
                     });
+                    
+                    // Supprimer le workspace
+                    document.getElementById('delete_workspace').addEventListener('click', async () => {
+                        if (confirm(`Voulez-vous vraiment supprimer le workspace ? Une fois supprimé, il ne pourra pas être récupéré.`)) {
+                            const response = await fetch(`/api/workspace/${currentWorkspaceID}`, {
+                                method: 'DELETE',
+                                headers: {Authorization: `Bearer ${token}`}
+                            });
+                            if (response.ok) {
+                                window.location.href = '/channels';
+                                
+                            } else {
+                                alert('Une erreur est survenue lors de la suppression du workspace');
+                            }
+                        }
+                    });
                 } else {
+                    // Quitter le workspace
                     document.getElementById('leave').addEventListener('click', async () => {
                         if (confirm(`Voulez-vous vraiment quitter le workspace "${workspace.name}" ?`)) {
-                            const response = await fetch(`/api/workspace/${workspaceID}/leave`, {
+                            const response = await fetch(`/api/workspace/${currentWorkspaceID}/leave`, {
                                 method: 'POST',
                                 headers: {Authorization: `Bearer ${token}`}
                             });
                             if (response.ok) {
-                                loadWorkspaces();
-                                loadWorkspace(currentWorkspaceID);
-
                                 window.location.href = '/channels';
                             } else {
                                 alert('Une erreur est survenue lors de la suppression du workspace');
@@ -284,6 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
                 
+                /// Inviter des membres
                 document.getElementById('invite').addEventListener('click', async () => {
                     const invite = prompt('Invitez des membres en partageant ce lien:', `${window.location.origin}/invite/${workspace.workspace_code}`);
                 });
@@ -291,12 +365,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 let channels = document.getElementsByClassName('channel');
                 for (let i = 0; i < channels.length; i++) {
                     channels[i].addEventListener('click', () => {
-                        let url = `/channels/${workspaceID}/${channels[i].id}`;
+                        let url = `/channels/${currentWorkspaceID}/${channels[i].id}`;
                         history.pushState({}, '', url);
                         loadPage(url);
+                        return;
                     });
                 }
-
+                
+                // Voir les membres
                 document.getElementById('view_members').addEventListener('click', () => {
                     if (document.getElementById('chat_members').style.display === 'none') {
                         document.getElementById('chat_members').style.display = 'block';
@@ -308,25 +384,119 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        // Fonction pour obtenir le nombre de messages du serveur
+        const getLastMessage = async (workspaceID, channelID) => {
+            const response = await fetch(`/api/message/${workspaceID}/${channelID}/last`, {
+                headers: { Authorization: `Bearer ${token}` } // Remplacez 'token' par votre token actuel
+            });
+            const data = await response.json();
+            return data.data;
+        }
+        
+        const displayMessages = (messages) => {
+            // On affiche les messages
+            currentChannelMessages.forEach(message => {
+
+                let author = "message_author"
+                if (message.user_id === user._id) {
+                    author = "message_author author_current_user";
+                }
+
+                let html = `
+                    <div class="message" id="${message._id}">
+                        <div class="message_info">
+                            <p id="${message.user_id}" class="${author}">${currentChannelMembers.find(member => member._id === message.user_id).username}</p>
+                            <p class="message_date">${new Date(message.created_at).toLocaleString()}</p>
+                        </div>
+                        <div class="message_content">
+                            <p>${message.content}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // On regarde si le message précédent dans messages est du même auteur
+                if (currentChannelMessages.indexOf(message) > 0) {
+                    if (message.user_id === currentChannelMessages[currentChannelMessages.indexOf(message) - 1].user_id) {
+                        // on insère le message dans le message précédent une ligne en dessous
+                        document.getElementsByClassName('message_content')[document.getElementsByClassName('message_content').length - 1].innerHTML += `<p>${message.content}</p>`;
+                        
+                    } else {
+                        document.getElementById('messages').innerHTML += html;
+                    }
+                } else {
+                    document.getElementById('messages').innerHTML += html;
+                }
+
+                
+                
+            });
+            // On scroll en bas de la liste des messages
+            document.getElementById('messages_zone').scrollTop = document.getElementById('messages_zone').scrollHeight;
+        }
+        
+        // Fonction pour rafraîchir les messages
+        const refreshMessages = async (currentWorkspaceID, currentChannelID, start, end) => {
+            if (!start) {
+                start = 0;
+            }
+            if (!end) {
+                end = await getLastMessage(currentWorkspaceID, currentChannelID);
+            }
+            // Mettez ici votre logique pour rafraîchir les messages
+            const response = await fetch(`/api/message/${currentWorkspaceID}/${currentChannelID}?start=${start}&end=${end}`, {
+                headers: {'Content-Type': 'application/json', Authorization: `Bearer ${token}`},
+            });
+            const messages = await response.json();
+            currentChannelMessages = messages.data;
+            console.log('Nouveau message récupéré:', currentChannelMessages);
+            document.getElementById('messages').innerHTML = '';
+            displayMessages(currentChannelMessages);
+        }
+
+        // Fonction pour vérifier le nombre de messages
+        const checkLastMessageDate = async (currentWorkspaceID, currentChannelID) => {
+            const serverLastMessageDate = await getLastMessage(currentWorkspaceID, currentChannelID);
+            if (serverLastMessageDate !== currentChannelLastMessageDate) {
+                console.log('Rafraîchissement des messages...');
+                currentChannelLastMessageDate = serverLastMessageDate;
+                await refreshMessages(currentWorkspaceID, currentChannelID);
+            }
+        }
+        
+        
+        
+        // Éxécution
+
         if (window.location.search === '?invited=true') {
             // Attend 1 seconde avant d'afficher l'alerte
             setTimeout(() => alert('Vous avez rejoint le workspace avec succès.'), 500);
         }
+        document.getElementById('message_input').focus();
         
-        loadUserInfo();
-        loadWorkspaces();
-        loadWorkspace(currentWorkspaceID);
-
+        await loadWorkspaces();
+        
+        await loadWorkspace(currentWorkspaceID);
+        
+        // On rafraichis messages
+        await refreshMessages(currentWorkspaceID, currentChannelID);
+        
+        // Boucle pour vérifier le nombre de messages et les rafraîchir si nécessaire
+        setInterval(async () => {
+            await checkLastMessageDate(currentWorkspaceID, currentChannelID);
+        }, 1000);
+        
     }
 
     // Gérer l'événement popstate pour la navigation avant/arrière
     window.addEventListener('popstate', function (event) {
         if (event.state && event.state.page) {
             loadPage(event.state.page);
+            return;
         }
     });
 
     // Chargement de la page initiale en fonction de l'URL
     const initialPage = window.location.pathname;
     loadPage(initialPage);
+    return;
 });

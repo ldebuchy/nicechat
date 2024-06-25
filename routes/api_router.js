@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const user = require('../controllers/api_controller/api_user_controller');
 const ws = require('../controllers/api_controller/api_workspace_controller');
+const msg = require('../controllers/api_controller/api_message_controller');
 const {auth} = require('../middleware/auth');
 
 router.get('/user', auth, user.getUser); // get the current user
@@ -23,5 +24,13 @@ router.post('/workspace/:id/channel', auth, ws.addChannel); // add a channel to 
 router.delete('/workspace/:id/:channelId', auth, ws.deleteChannel); // delete a channel
 
 router.get('/invite/:id', auth, ws.matchInviteCode); // invite a user to a workspace
+
+// Messages
+router.post('/message/:workspaceId/:channelId', auth, msg.createMessage); // post a message to a channel
+router.get('/message/:workspaceId/:channelId', auth, msg.getMessages); // get messages of a channel
+//router.delete('/message/:workspaceId/:channelId/:id', auth, msg.deleteMessage); // delete a message
+
+// Pour connaitre la date du dernier message d'un channel
+router.get('/message/:workspaceId/:channelId/last', auth, msg.getLastMessageDate);
     
 module.exports = router;
